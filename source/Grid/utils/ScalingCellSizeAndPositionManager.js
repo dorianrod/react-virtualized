@@ -82,6 +82,7 @@ export default class ScalingCellSizeAndPositionManager {
   }
 
   getSizeAndPositionOfCell(index: number) {
+    //console.log("getSizeAndPositionOfCell", this._cellSizeAndPositionManager);
     return this._cellSizeAndPositionManager.getSizeAndPositionOfCell(index);
   }
 

@@ -19,7 +19,19 @@ export default function defaultOverscanIndicesGetter({
   scrollDirection,
   startIndex,
   stopIndex,
+  disable,
 }: OverscanIndicesGetterParams): OverscanIndices {
+  if (typeof overscanCellsCount == 'function') {
+    return overscanCellsCount(arguments);
+  }
+
+  if (disable) {
+    return {
+      overscanStartIndex: 0,
+      overscanStopIndex: cellCount - 1,
+    };
+  }
+
   if (scrollDirection === SCROLL_DIRECTION_FORWARD) {
     return {
       overscanStartIndex: Math.max(0, startIndex),

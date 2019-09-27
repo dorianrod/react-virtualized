@@ -59,6 +59,14 @@ export type Scroll = {
   scrollLeft: number,
   scrollTop: number,
   scrollWidth: number,
+  columnOverscanStartIndex: number,
+  columnOverscanStopIndex: number,
+  columnStartIndex: number,
+  columnStopIndex: number,
+  rowOverscanStartIndex: number,
+  rowOverscanStopIndex: number,
+  rowStartIndex: number,
+  rowStopIndex: number,
 };
 
 export type ScrollbarPresenceChange = {

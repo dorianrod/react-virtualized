@@ -27,7 +27,7 @@ export default function defaultOverscanIndicesGetter({
 
   if (scrollDirection === SCROLL_DIRECTION_FORWARD) {
     return {
-      overscanStartIndex: Math.max(0, startIndex - 1),
+      overscanStartIndex: Math.max(0, startIndex - 2),
       overscanStopIndex: Math.min(
         cellCount - 1,
         stopIndex + overscanCellsCount,

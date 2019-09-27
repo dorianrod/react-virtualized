@@ -29,9 +29,12 @@ type Props = {
  */
 export default class CellMeasurer extends React.PureComponent<Props> {
   static __internalCellMeasurerFlag = false;
+  static defaultProps = {
+    shouldBeMeasured: () => true,
+  };
 
   componentDidMount() {
-    this._maybeMeasureCell();
+    this._maybeMeasureCell(true);
   }
 
   componentDidUpdate() {
@@ -76,6 +79,7 @@ export default class CellMeasurer extends React.PureComponent<Props> {
       }
       if (!cache.hasFixedHeight()) {
         node.style.height = 'auto';
+        node.style.transform = 'translateY(-20000px)';
       }
 
       const height = Math.ceil(node.offsetHeight);
@@ -87,6 +91,7 @@ export default class CellMeasurer extends React.PureComponent<Props> {
       }
       if (styleHeight) {
         node.style.height = styleHeight;
+        node.style.transform = null;
       }
 
       return {height, width};
@@ -95,13 +100,16 @@ export default class CellMeasurer extends React.PureComponent<Props> {
     }
   }
 
-  _maybeMeasureCell() {
+  _maybeMeasureCell(isMounting) {
     const {
       cache,
       columnIndex = 0,
       parent,
+      shouldBeMeasured,
       rowIndex = this.props.index || 0,
     } = this.props;
+
+    if (!shouldBeMeasured(rowIndex, columnIndex, isMounting)) return;
 
     if (!cache.has(rowIndex, columnIndex)) {
       const {height, width} = this._getCellMeasurements();
@@ -126,8 +134,11 @@ export default class CellMeasurer extends React.PureComponent<Props> {
       cache,
       columnIndex = 0,
       parent,
+      shouldBeMeasured,
       rowIndex = this.props.index || 0,
     } = this.props;
+
+    if (!shouldBeMeasured(rowIndex, columnIndex)) return;
 
     const {height, width} = this._getCellMeasurements();
 

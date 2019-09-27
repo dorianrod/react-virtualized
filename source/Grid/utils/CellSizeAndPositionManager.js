@@ -95,10 +95,11 @@ export default class CellSizeAndPositionManager {
    */
   getSizeAndPositionOfCell(index: number): SizeAndPositionData {
     if (index < 0 || index >= this._cellCount) {
-      throw Error(
+      console.error(
         `Requested index ${index} is outside of range 0..${this._cellCount}`,
       );
     }
+
     const vector = this._layoutVector;
     if (index > this._lastMeasuredIndex) {
       const token = {index: this._lastMeasuredIndex + 1};
@@ -108,13 +109,18 @@ export default class CellSizeAndPositionManager {
         // undefined or NaN probably means a logic error in the size getter.
         // null means we're using CellMeasurer and haven't yet measured a given index.
         if (size === undefined || size !== size) {
-          throw Error(`Invalid size returned for cell ${i} of value ${size}`);
+          console.error(`Invalid size returned for cell ${i} of value ${size}`);
         } else if (size !== null) {
           vector.setItemSize(i, size);
         }
       }
       this._lastMeasuredIndex = Math.min(index, this._cellCount - 1);
     }
+
+    /*console.log("getSizeAndPositionOfCell", index, this._cellCount, {
+      offset: vector.start(index),
+      size: vector.getItemSize(index),
+    }, this);*/
 
     return {
       offset: vector.start(index),
@@ -143,8 +149,13 @@ export default class CellSizeAndPositionManager {
    * As cells are measured, the estimate will be updated.
    */
   getTotalSize(): number {
+    //  try {
     const lastIndex = this._cellCount - 1;
     return lastIndex >= 0 ? this._layoutVector.end(lastIndex) : 0;
+    /* } catch(err) {
+      console.error(err, this._layoutVector, lastIndex, this);
+      return 0;
+    }*/
   }
 
   /**
@@ -235,8 +246,18 @@ export default class CellSizeAndPositionManager {
     // First interrogate the constant-time lookup table
     let nearestCellIndex = vector.indexOf(targetOffset);
 
+    //Ajout DRD: appelé pour getVisibleCellRange qui peut donner une erreur stop = -1 avec start = 25 par ex si offset est plus grand
+    if (nearestCellIndex === -1) {
+      nearestCellIndex = vector.getLength() - 1;
+    }
+
+    let prevLastMeasuredIndex, prevNearestCellIndex;
+
     // If we haven't yet measured this high, compute sizes for each cell up to the desired offset.
     while (nearestCellIndex > this._lastMeasuredIndex) {
+      prevLastMeasuredIndex = this._lastMeasuredIndex;
+      prevNearestCellIndex = nearestCellIndex;
+
       // Measure all the cells up to the one we want to find presently.
       // Do this before the last-index check to ensure the sparse array
       // is fully populated.
@@ -253,6 +274,14 @@ export default class CellSizeAndPositionManager {
         nearestCellIndex = this._lastMeasuredIndex;
         this._lastMeasuredIndex = nearestCellIndex - 1;
         targetOffset = Math.max(0, Math.min(offset, vector.start(lastIndex)));
+      }
+
+      if (
+        prevLastMeasuredIndex == this._lastMeasuredIndex &&
+        prevNearestCellIndex == nearestCellIndex
+      ) {
+        //boucle infinie
+        return nearestCellIndex;
       }
     }
 

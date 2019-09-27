@@ -177,17 +177,26 @@ export default class List extends React.PureComponent<Props> {
   }
 
   /** See Grid#scrollToCell */
-  scrollToRow(index: number = 0) {
+  scrollToRow(index: number = 0, options) {
     if (this.Grid) {
-      this.Grid.scrollToCell({
-        columnIndex: 0,
-        rowIndex: index,
-      });
+      this.Grid.scrollToCell(
+        {
+          columnIndex: 0,
+          rowIndex: index,
+        },
+        options,
+      );
     }
   }
 
   render() {
-    const {className, noRowsRenderer, scrollToIndex, width} = this.props;
+    const {
+      onScroll,
+      className,
+      noRowsRenderer,
+      scrollToIndex,
+      width,
+    } = this.props;
 
     const classNames = clsx('ReactVirtualized__List', className);
 
@@ -200,7 +209,7 @@ export default class List extends React.PureComponent<Props> {
         columnWidth={width}
         columnCount={1}
         noContentRenderer={noRowsRenderer}
-        onScroll={this._onScroll}
+        onScroll={onScroll ? this._onScroll : null}
         onSectionRendered={this._onSectionRendered}
         ref={this._setRef}
         scrollToRow={scrollToIndex}
@@ -232,6 +241,7 @@ export default class List extends React.PureComponent<Props> {
 
     return rowRenderer({
       index: rowIndex,
+      cache: this.props.deferredMeasurementCache,
       style,
       isScrolling,
       isVisible,
@@ -244,10 +254,10 @@ export default class List extends React.PureComponent<Props> {
     this.Grid = ref;
   };
 
-  _onScroll = ({clientHeight, scrollHeight, scrollTop}: GridScroll) => {
+  _onScroll = data => {
     const {onScroll} = this.props;
 
-    onScroll({clientHeight, scrollHeight, scrollTop});
+    onScroll(data);
   };
 
   _onSectionRendered = ({

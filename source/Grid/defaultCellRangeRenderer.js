@@ -21,6 +21,7 @@ export default function defaultCellRangeRenderer({
   rowSizeAndPositionManager,
   rowStartIndex,
   rowStopIndex,
+  scrollTop,
   styleCache,
   verticalOffsetAdjustment,
   visibleColumnIndices,
@@ -41,6 +42,7 @@ export default function defaultCellRangeRenderer({
 
   for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
     let rowDatum = rowSizeAndPositionManager.getSizeAndPositionOfCell(rowIndex);
+    //rowDatum.offset += 250;
 
     for (
       let columnIndex = columnStartIndex;
@@ -77,6 +79,7 @@ export default function defaultCellRangeRenderer({
             position: 'absolute',
             top: 0,
             width: 'auto',
+            transform: 'translateY(-20000px)', //fix DRD: on empèche qu'il soit visible
           };
         } else {
           style = {
@@ -92,6 +95,7 @@ export default function defaultCellRangeRenderer({
       }
 
       let cellRendererParams = {
+        scrollTop,
         columnIndex,
         isScrolling,
         isVisible,
